@@ -11,6 +11,8 @@ mqtt_host = 'korotach.com'
 mqtt_user = 'igor'
 mqtt_password = 'igor1315'
 debug = True
+state_filename = "./states/" + str(time.strftime("%Y%m%d")) + "_state_.csv"
+events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
 
 
 def on_connect(mosq, obj, flags, rc):
@@ -37,8 +39,17 @@ def on_message(mosq, obj, msg):
     if json_string != '' and is_json(json_string):
         d = json.loads(json_string)
         if 'status' in d.keys():
-            if d['status'].find('Ready') != -1:
-                state = 'we successfully have gave goods out'
+            print("I'm here -- ", state_filename)
+            state_file = open(state_filename, 'a')
+            fstr = str(time.strftime("%d.%m.%Y %H:%M:%S")) + ', ' + str(d['status']) + ', ' + str(d['customer']) + ', ' + str(d['duration']) + ', ' + str(d['obstacles']) + '\n'
+            state_file.write(fstr)
+            state_file.close()
+        if 'event' in d.keys():
+            events_file = open(events_filename, 'a')
+            events_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
+                              ', ' + str(d['event']) +
+                              ', ' + str(d['duration']) + '\n')
+            events_file.close()
 
 
 def on_publish(mosq, obj, mid):
@@ -79,3 +90,6 @@ time.sleep(1)
 while True:
     pass  # write the analityc's report
     time.sleep(1)
+    state_filename = "./states/" + str(time.strftime("%Y%m%d")) + "_state_.csv"
+    events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
+#    print("In the main loop")
