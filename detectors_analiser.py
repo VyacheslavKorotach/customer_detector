@@ -41,8 +41,11 @@ def on_message(mosq, obj, msg):
         if 'status' in d.keys():
             print("I'm here -- ", state_filename)
             state_file = open(state_filename, 'a')
-            fstr = str(time.strftime("%d.%m.%Y %H:%M:%S")) + ', ' + str(d['status']) + ', ' + str(d['customer']) + ', ' + str(d['duration']) + ', ' + str(d['obstacles']) + '\n'
-            state_file.write(fstr)
+            state_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
+                             ', ' + str(d['status']) +
+                             ', ' + str(d['customer']) +
+                             ', ' + str(d['duration']) +
+                             ', ' + str(d['obstacles']) + '\n')
             state_file.close()
         if 'event' in d.keys():
             events_file = open(events_filename, 'a')
