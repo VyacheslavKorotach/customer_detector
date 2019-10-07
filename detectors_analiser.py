@@ -108,9 +108,9 @@ while True:
     heart_interval = now - heart_beat_time
     print(f'heart_interval is: {heart_interval}')
     if heart_interval > max_heart_interval and heart_is_beating:
-        bot.send_message(-1001440639497, f'heart of exchange stopped for more than {max_heart_interval} sec.')
+        bot.send_message(-1001440639497, 'heart of exchange stopped for more than ' + str(max_heart_interval) + ' sec.')
         heart_is_beating = False
     else:
         if not heart_is_beating:
-            bot.send_message(-1001440639497, f'heart of exchange started to beat')
+            bot.send_message(-1001440639497, 'heart of exchange started to beat')
             heart_is_beating = True
