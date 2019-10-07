@@ -106,7 +106,7 @@ while True:
     events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
     now = time.time()
     heart_interval = now - heart_beat_time
-    print(f'heart_interval is: {heart_interval}')
+    print('heart_interval is: ', heart_interval)
     if heart_interval > max_heart_interval and heart_is_beating:
         bot.send_message(-1001440639497, 'heart of exchange stopped for more than ' + str(max_heart_interval) + ' sec.')
         heart_is_beating = False
