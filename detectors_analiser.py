@@ -2,6 +2,10 @@ import os
 import json
 import time
 import paho.mqtt.client as mqtt
+import telebot
+
+bot_token = os.environ["EXCHANGE_BOT_TOKEN"]
+bot = telebot.TeleBot(bot_token)
 
 topic_sub_state = 'customer_detector/exchanges/customer_detector_0001/state'
 topic_sub_events = 'customer_detector/exchanges/customer_detector_0001/events'
@@ -13,6 +17,9 @@ mqtt_password = 'igor1315'
 debug = True
 state_filename = "./states/" + str(time.strftime("%Y%m%d")) + "_state_.csv"
 events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
+heart_beat_time = time.time()
+heart_is_beating = False
+max_heart_interval = 15  # max heart beat interval in sec.
 
 
 def on_connect(mosq, obj, flags, rc):
@@ -29,6 +36,7 @@ def on_message(mosq, obj, msg):
     events string:
     {"event": "Customer arraived", "duration": 11125}
     """
+    global heart_beat_time
     print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     json_string = ''
     d = {}
@@ -47,6 +55,7 @@ def on_message(mosq, obj, msg):
                              ', ' + str(d['duration']) +
                              ', ' + str(d['obstacles']) + '\n')
             state_file.close()
+            heart_beat_time = time.time()
         if 'event' in d.keys():
             events_file = open(events_filename, 'a')
             events_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
@@ -95,4 +104,13 @@ while True:
     time.sleep(1)
     state_filename = "./states/" + str(time.strftime("%Y%m%d")) + "_state_.csv"
     events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
-#    print("In the main loop")
+    now = time.time()
+    heart_interval = now - heart_beat_time
+    print(f'heart_interval is: {heart_interval}')
+    if heart_interval > max_heart_interval and heart_is_beating:
+        bot.send_message(-1001440639497, f'heart of exchange stopped for more than {max_heart_interval} sec.')
+        heart_is_beating = False
+    else:
+        if not heart_is_beating:
+            bot.send_message(-1001440639497, f'heart of exchange started to beat')
+            heart_is_beating = True
