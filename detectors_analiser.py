@@ -112,17 +112,18 @@ while True:
         bot.send_message(-1001440639497, warning_msg)
         warning_file = open(state_filename, 'a')
         warning_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
-               ', ' + warning_msg +
-               ', ' + str(heart_interval) + '\n')
+                           ', ' + warning_msg +
+                           ', ' + str(heart_interval) + '\n')
         warning_file.close()
         heart_is_beating = False
     else:
         if not heart_is_beating and heart_interval < max_heart_interval:
             warning_msg = 'heart of exchange started to beat'
             bot.send_message(-1001440639497, warning_msg)
+            print('writing to a file: ', state_filename, ' msg: ', warning_msg)
             warning_file = open(state_filename, 'a')
             warning_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
-                       ', ' + warning_msg +
-                       ', ' + str(heart_interval) + '\n')
+                               ', ' + warning_msg +
+                               ', ' + str(heart_interval) + '\n')
             warning_file.close()
             heart_is_beating = True
