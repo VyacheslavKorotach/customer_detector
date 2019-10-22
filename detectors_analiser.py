@@ -19,7 +19,7 @@ state_filename = "./states/" + str(time.strftime("%Y%m%d")) + "_state_.csv"
 events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
 heart_beat_time = time.time()
 heart_is_beating = False
-max_heart_interval = 15  # max heart beat interval in sec.
+max_heart_interval = 2  # max heart beat interval in sec.
 
 
 def on_connect(mosq, obj, flags, rc):
@@ -47,7 +47,7 @@ def on_message(mosq, obj, msg):
     if json_string != '' and is_json(json_string):
         d = json.loads(json_string)
         if 'status' in d.keys():
-            print("I'm here -- ", state_filename)
+            # print("I'm here -- ", state_filename)
             state_file = open(state_filename, 'a')
             state_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
                              ', ' + str(d['status']) +
@@ -108,9 +108,21 @@ while True:
     heart_interval = now - heart_beat_time
     print('heart_interval is: ', heart_interval)
     if heart_interval >= max_heart_interval and heart_is_beating:
-        bot.send_message(-1001440639497, 'heart of exchange stopped for more than ' + str(max_heart_interval) + ' sec.')
+        warning_msg = 'heart of exchange stopped for more than ' + str(max_heart_interval) + ' sec.'
+        bot.send_message(-1001440639497, warning_msg)
+        warning_file = open(state_filename, 'a')
+        warning_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
+               ', ' + warning_msg +
+               ', ' + str(heart_interval) + '\n')
+        warning_file.close()
         heart_is_beating = False
     else:
         if not heart_is_beating and heart_interval < max_heart_interval:
-            bot.send_message(-1001440639497, 'heart of exchange started to beat')
+            warning_msg = 'heart of exchange started to beat'
+            bot.send_message(-1001440639497, warning_msg)
+            warning_file = open(state_filename, 'a')
+            warning_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
+                       ', ' + warning_msg +
+                       ', ' + str(heart_interval) + '\n')
+            warning_file.close()
             heart_is_beating = True
