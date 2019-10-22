@@ -19,7 +19,7 @@ state_filename = "./states/" + str(time.strftime("%Y%m%d")) + "_state_.csv"
 events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
 heart_beat_time = time.time()
 heart_is_beating = False
-max_heart_interval = 2  # max heart beat interval in sec.
+max_heart_interval = 15  # max heart beat interval in sec.
 
 
 def on_connect(mosq, obj, flags, rc):
