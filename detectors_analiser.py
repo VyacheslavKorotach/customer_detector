@@ -18,6 +18,7 @@ debug = True
 state_filename = "./states/" + str(time.strftime("%Y%m%d")) + "_state_.csv"
 events_filename = "./events/" + str(time.strftime("%Y%m%d")) + "_events_.csv"
 heart_beat_time = time.time()
+event_time = heart_beat_time
 heart_is_beating = False
 max_heart_interval = 23  # max heart beat interval in sec.
 
@@ -37,6 +38,7 @@ def on_message(mosq, obj, msg):
     {"event": "Customer arraived", "duration": 11125}
     """
     global heart_beat_time
+    global event_time
     print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     json_string = ''
     d = {}
@@ -57,6 +59,7 @@ def on_message(mosq, obj, msg):
             state_file.close()
             heart_beat_time = time.time()
         if 'event' in d.keys():
+            event_time = time.time()
             events_file = open(events_filename, 'a')
             events_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
                               ', ' + str(d['event']) +
@@ -110,20 +113,24 @@ while True:
     if heart_interval >= max_heart_interval and heart_is_beating:
         warning_msg = 'heart of exchange stopped for more than ' + str(max_heart_interval) + ' sec.'
         bot.send_message(-1001440639497, warning_msg)
-        warning_file = open(state_filename, 'a')
+        event_duration = now - event_time
+        event_time = now
+        warning_file = open(events_filename, 'a')
         warning_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
                            ', ' + warning_msg +
-                           ', ' + str(heart_interval) + '\n')
+                           ', ' + str(int(heart_interval*1000)) + '\n')
         warning_file.close()
         heart_is_beating = False
     else:
         if not heart_is_beating and heart_interval < max_heart_interval:
             warning_msg = 'heart of exchange started to beat'
             bot.send_message(-1001440639497, warning_msg)
-            print('writing to a file: ', state_filename, ' msg: ', warning_msg)
-            warning_file = open(state_filename, 'a')
+            event_duration = now - event_time
+            event_time = now
+            print('writing to a file: ', events_filename, ' msg: ', warning_msg)
+            warning_file = open(events_filename, 'a')
             warning_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
                                ', ' + warning_msg +
-                               ', ' + str(heart_interval) + '\n')
+                               ', ' + str(int(event_duration*1000)) + '\n')
             warning_file.close()
             heart_is_beating = True
