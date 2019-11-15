@@ -28,19 +28,21 @@ def on_message(mosq, obj, msg):
     """
     print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     json_string = ''
-    # d = {}
     try:
         json_string = msg.payload.decode('utf8')
     except UnicodeDecodeError:
         print("it was not a utf8-encoded unicode string")
     if is_json(json_string):
         d = json.loads(json_string)
-        events_filename = events_path + str(time.strftime("%Y%m%d")) + "/" + msg.topic.split('/')[-1] + '.csv'
+        events_filename = events_path + str(time.strftime("%Y%m%d")) + "_" + msg.topic.split('/')[-1] + '.csv'
         if 'event' in d.keys():
             events_file = open(events_filename, 'a')
             events_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
                               ', ' + str(d['event']) +
                               ', ' + str(d['duration']) + '\n')
+            print(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
+                  ', ' + str(d['event']) +
+                  ', ' + str(d['duration']) + '\n')
             events_file.close()
 
 

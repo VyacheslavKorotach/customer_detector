@@ -30,7 +30,6 @@ def on_message(mosq, obj, msg):
     global events_path
     print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     json_string = ''
-    # d = {}
     try:
         json_string = msg.payload.decode('utf8')
     except UnicodeDecodeError:
@@ -41,7 +40,8 @@ def on_message(mosq, obj, msg):
             detector = msg.topic.split('/')[-1]
             if detector not in devices_heart_beat_times.keys():
                 bot.send_message(-1001440639497, f'heart of exchange ({detector}) started to beat')
-                events_fname = events_path + str(time.strftime("%Y%m%d")) + "/" + msg.topic.split('/')[-1] + '.csv'
+                print(f'heart of exchange ({detector}) started to beat')
+                events_fname = events_path + str(time.strftime("%Y%m%d")) + "_" + msg.topic.split('/')[-1] + '.csv'
                 events_f = open(events_fname, 'a')
                 events_f.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
                                ', ' + f'heart of exchange ({detector}) started to beat' +
@@ -88,12 +88,14 @@ time.sleep(1)
 while True:
     time.sleep(1)
     now = time.time()
-    for device in devices_heart_beat_times:
-        beat_interval = now - devices_heart_beat_times[device]
+    dhbt = devices_heart_beat_times.copy()
+    for device in dhbt:
+        beat_interval = now - dhbt[device]
         if beat_interval >= max_heart_interval:
             warning_msg = f'heart of exchange ({device}) stopped for more than {max_heart_interval} sec.'
             bot.send_message(-1001440639497, warning_msg)
-            events_filename = events_path + str(time.strftime("%Y%m%d")) + "/" + device + '.csv'
+            print(warning_msg)
+            events_filename = events_path + str(time.strftime("%Y%m%d")) + "_" + device + '.csv'
             events_file = open(events_filename, 'a')
             events_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
                               ', ' + warning_msg +
