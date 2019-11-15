@@ -6,7 +6,7 @@
 #include <ArduinoJson.h>
 #include <Ultrasonic.h>
 
-#define TRIGGER_PIN  0
+#define TRIGGER_PIN  0 //(поменять их местами. на первых пяти сделали тригер 2, эхо 0)
 #define ECHO_PIN     2
 
 Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN);
