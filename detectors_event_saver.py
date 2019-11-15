@@ -8,8 +8,7 @@ topic_sub_events = 'customer_detector/exchanges/events/#'
 mqtt_host = os.environ["EXCHANGE_MQTT_HOST"]
 mqtt_user = os.environ["EXCHANGE_MQTT_USER"]
 mqtt_password = os.environ["EXCHANGE_MQTT_PASSWORD"]
-debug = True
-events_path = "./events/" + str(time.strftime("%Y%m%d")) + "/"
+events_path = "./events/"
 
 
 def on_connect(mosq, obj, flags, rc):
@@ -29,14 +28,14 @@ def on_message(mosq, obj, msg):
     """
     print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     json_string = ''
-    d = {}
+    # d = {}
     try:
         json_string = msg.payload.decode('utf8')
     except UnicodeDecodeError:
         print("it was not a utf8-encoded unicode string")
-    if json_string != '' and is_json(json_string):
+    if is_json(json_string):
         d = json.loads(json_string)
-        events_filename = events_path + msg.topic.split('/')[-1] + '.csv'
+        events_filename = events_path + str(time.strftime("%Y%m%d")) + "/" + msg.topic.split('/')[-1] + '.csv'
         if 'event' in d.keys():
             events_file = open(events_filename, 'a')
             events_file.write(str(time.strftime("%d.%m.%Y %H:%M:%S")) +
